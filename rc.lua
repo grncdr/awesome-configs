@@ -287,7 +287,7 @@ for i = 1, math.min(10,#tags[1]) do
 end
 
 -- Set keys
-root.keys = globalkeys
+root.keys(globalkeys)
 -- }}}
 
 -- {{{ Hooks
