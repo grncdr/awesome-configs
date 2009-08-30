@@ -7,12 +7,18 @@ config = {
 }
 
 config.layouts = {
-	code = {
+	default = {
 		awful.layout.suit.tile.bottom,
 		awful.layout.suit.fair.horizontal,
 		awful.layout.suit.tile,
 		awful.layout.suit.fair,
 		awful.layout.suit.max,
+	},
+	code = {
+		awful.layout.suit.tile.bottom,
+		awful.layout.suit.fair.horizontal,
+		awful.layout.suit.tile,
+		awful.layout.suit.fair,
 	},
 	web = { -- Tag 2
 		awful.layout.suit.max,

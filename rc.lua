@@ -1,6 +1,6 @@
 -- Standard awesome library
 require("awful")
--- require("awful.rules")
+require("awful.rules")
 require("awful.autofocus")
 -- Theme handling library
 require("beautiful")
@@ -14,24 +14,24 @@ modkey = "Mod4"
 dofile(awful.util.getdir('config') .. '/config.lua')
 
 -- A couple of utility functions
-function nextlayout() 
-	awful.layout.inc(config.layouts[awful.tag.selected().name], 1)
+function layout_change(idx) 
+	if config.layouts[awful.tag.selected().name] then
+		awful.layout.inc(config.layouts[awful.tag.selected().name], idx)
+	else
+		awful.layout.inc(config.layouts.default, idx)
+	end
 end
-
-function prevlayout() 
-	awful.layout.inc(config.layouts[awful.tag.selected().name], -1)
-end
-
 
 -- Actually load theme
 beautiful.init(config.theme)
 
+
 -- {{{ Tags
 -- Define tags table.
 tags = {}
--- for s = 1, screen.count() do
--- 	-- Each screen has its own tag table.
---   tags[s] = {}
+for s = 1, screen.count() do
+ 	-- Each screen has its own tag table.
+  tags[s] = {}
 -- 	for i, t in ipairs(config.tags) do
 -- 				tags[s][i] = tag({ name = t.name })
 --         tags[s][i].screen = s
@@ -39,7 +39,7 @@ tags = {}
 -- 	end
 --   -- Select the first tag.
 -- 	tags[s][1].selected = true
--- end
+end
 -- }}}
 
 -- {{{ Wibox
@@ -136,8 +136,8 @@ for s = 1, screen.count() do
 	-- We need one layoutbox per screen.
 	mylayoutbox[s] = awful.widget.layoutbox(s)
 	mylayoutbox[s].buttons = awful.util.table.join(
-		awful.button({ }, 1, nextlayout),
-		awful.button({ }, 3, prevlayout)
+		awful.button({ }, 1, function() layout_change(1) end),
+		awful.button({ }, 3, function() layout_change(-1) end)
 	)
 	-- Create a taglist widget
 	mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
@@ -219,8 +219,8 @@ globalkeys = awful.util.table.join(
 	awful.key({ modkey, "Shift"   }, "l",	 function () awful.tag.incnmaster(-1)	  end),
 	awful.key({ modkey, "Control" }, "h",	 function () awful.tag.incncol( 1)		 end),
 	awful.key({ modkey, "Control" }, "l",	 function () awful.tag.incncol(-1)		 end),
-	awful.key({ modkey,		   }, "BackSpace", nextlayout),
-	awful.key({ modkey, "Shift"   }, "BackSpace", prevlayout),
+	awful.key({ modkey,		   }, "BackSpace", function () layout_change(1) end),
+	awful.key({ modkey, "Shift"   }, "BackSpace", function () layout_change(-1) end),
 
 	-- Prompts
   awful.key({ modkey }, "Return", config.prompts.default),
@@ -233,12 +233,7 @@ globalkeys = awful.util.table.join(
 
 -- tag key shortcuts
 -- Compute the maximum number of digit we need, limited to 9
-keynumber = 0
-for s = 1, screen.count() do
-   keynumber = math.min(9, math.max(#tags[s], keynumber));
-end
-
-for i = 1, keynumber do
+for i = 1, 9 do
     globalkeys = awful.util.table.join(globalkeys,
         awful.key({ modkey }, i,
                   function ()
@@ -287,17 +282,60 @@ clientkeys = awful.util.table.join(
 	awful.key({ modkey, "Shift"   }, "r",      function (c) c:redraw() end)
 )
 
-require("dyno")
+awful.rules.rules = {
+	{ rule = { },
+		properties = { border_width = beautiful.border_width,
+			border_color = beautiful.border_normal,
+			focus = true,
+			keys = clientkeys,
+			buttons = clientbuttons } },
+	{ rule = { class = "URxvt" }, 
+		properties = { tagname = 'term' } },
+	{ rule = { class = "URxvt", name = "@" },
+		properties = { tagname = 'ssh' } },
+	{ rule = { class = "Shiretoko" }, 
+		properties = { tagname = 'web' } },
+	{ rule = { class = "Evince" }, 
+		properties = { tagname = 'term' } },
+	{ rule = { class = "Gvim" }, 
+		properties = { tagname = 'code' } },
+	{ rule = { name = "VIM" }, 
+		properties = { tagname = 'code' } },
+	{ rule = { class = "Qalculate" }, 
+		properties = { float = true } },
+	{ rule = { name = "wicd%-curses"}, 
+		properties = { tagname = 'sys' } },
+	{ rule = { name = "alsamixer" }, 
+		properties = { tagname = 'sys' } }
+}
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
-client.add_signal("manage", dyno.manage)
+client.add_signal("manage", function (c, startup)
+    -- If we are not managing this application at startup,
+    -- move it to the screen where the mouse is.
+    -- We only do it for filtered windows (i.e. no dock, etc).
+    if not startup and awful.client.focus.filter(c) then
+        c.screen = mouse.screen
+    end
 
-client.add_signal("property::name", dyno.property)
-client.add_signal("property::name", function(c)
-	naughty.notify { text = c.name }
+    -- Add a titlebar
+    -- awful.titlebar.add(c, { modkey = modkey })
+
+    -- Enable sloppy focus
+    c:add_signal("mouse::enter", function(c)
+        if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
+            and awful.client.focus.filter(c) then
+            client.focus = c
+        end
+    end)
+
+    -- Set the windows at the slave,
+    -- i.e. put it at the end of others instead of setting it master.
+    -- awful.client.setslave(c)
 end)
 
 client.add_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+require("dyno")

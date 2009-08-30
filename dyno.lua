@@ -1,109 +1,108 @@
-local terminal = config.terminal
 local clientkeys = clientkeys
+local client = client
+local mouse = mouse
 local pairs = pairs
+local ipairs = ipairs
 local type = type
 local tags = tags
 local tag = tag
-
-local awful = require('awful')
-local awful.rules = require('awful.rules')
+local layouts = config.layouts
+local awful = awful
+local rules = awful.rules.rules
+local match = awful.rules.match
 local naughty = require('naughty')
 local beautiful = require('beautiful')
 module('dyno')
 
-awful.rules.rules = {
-	{ rule = { class = "urxvt" }, tagname = 'term' },
-	{ rule = { class = "urxvt", name = "ssh" }, tagname = 'ssh' },
-	{ rule = { class = "shiretoko" }, tagname = 'web' },
-	{ rule = { class = "evince" }, tagname = 'term' } },
-	{ rule = { class = "vim" }, tagname = 'code' },
-	{ rule = { class = "qalculate" }, float = true },
-	{ rule = { name = "wicd%-curses"}, tagname = 'sys' }
-	{ rule = { name = "alsamixer" }, tagname = 'sys' },
-}
+fallback = 'misc'
 
-function taglist(c)
-	local s = mouse.screen
-	local tagnames = {}
+function retag(c)
+	local s = c.screen
 
+	local names = {}
+	local switch = {}
 	-- check awful.rules.rules to see if anything matches
-	for _, entry in ipairs(awful.rules.rules) do
-		-- if we have a match and it has a tags table:
-		if awful.rules.match(c, entry.rule) and entry.tagname then
-			-- set the client tagnames to the newly compiled tags
-			table.insert(tagnames, entry.tagname)
+	for _, r in ipairs(rules) do
+		if r.properties.tagname and match(c, r.rule) then
+			names[#names + 1] = r.properties.tagname
+			if r.properties.switchtotag then
+				switch[#switch + 1] = r.properties.tagname
+			end
 		end
 	end
 
+	local tagtable = {}
+	local selected = {}
+	
 	-- if no tagnames specified
-	if tagnames == {} then
+	if #names == 0 then
 		if fallback then
-			-- TODO implement this
-			naughty.notify({text = "Fallback tag not implemented yet"})
+			if type(fallback) == 'string' then
+				names = { fallback }
+			elseif type(fallback) == 'tag' then
+				tagtable = { fallback }
+			end
 		else
-			table.insert(tagnames, c:class:lower())
+			names = { c.class:lower() }
 		end
 	end
 
-	local ctags = {}
-	for _, name in ipairs(tagnames) do
-		local size = #ctags
+	for _, name in ipairs(names) do
+		local size = #tagtable
 		for i, t in ipairs(tags[s]) do
 			if t.name == name then
-				table.insert(ctags, t)
+				if switch[name] ~= nil then selected[#selected+1] = t end
+				tagtable[#tagtable + 1] = t
 				break
 			end
 		end
-		if #ctags == size then
-			table.insert(tags[s], tag(name))
-			table.insert(ctags, tags[s][#tags[s]])
+		if #tagtable == size then
+			maketag( name, s )
+		end
+	end
+	c:tags(tagtable)
+	for _, t in ipairs(selected) do
+		t.selected = true
 	end
 end
-	
-function manage(c, startup)
-	if not startup and awful.client.focus.filter(c) then
-		c.screen = mouse.screen
-	end	
-	c.maximized_horizontal = false
-	c.maximized_vertical = false
-	c.buttons = awful.util.table.join(
-		awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
-		awful.button({ modkey }, 1, awful.mouse.client.move),
-		awful.button({ modkey }, 3, awful.mouse.client.resize)
-	)
-	c.border_width = beautiful.border_width
-	c.border_color = beautiful.border_normal
 
-	-- Set key bindings
-	c:keys(clientkeys)
-	c:add_signal("mouse::enter", function(c)
-		if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
-		and awful.client.focus.filter(c) then
-			client.focus = c
-		end
-	end)
-	c:tags(taglist(c))
-end
-
-function property(c, prop)
-	local instance = c.instance and c.instance:lower() or ""
-	local class = c.class and c.class:lower() or ""
-	local name = c.name and c.name:lower() or ""
-	if prop == 'name' and ( terminal:match(class) or terminal:match(instance) ) and name ~= lastname then
-		lastname = name
-		c:tags(taglist(c))
-		client.focus = c
---		awful.hooks.user.call("focus", c)
+function setlayout()
+	if layouts[name] ~= nil then
+		awful.layout.set(layouts[name][1])
+	elseif layouts['default'] ~= nil then
+		awful.layout.set(layouts.default[1])
+	else
+		awful.layout.set(layouts[1])
 	end
-
-	-- Titlebar management
-  if c.fullscreen then
-		awful.titlebar.remove(c)
-  elseif not c.fullscreen then
-		if c.titlebar == nil and awful.client.floating.get(c) then
-			 awful.titlebar.add(c, { modkey = modkey })
-		elseif c.titlebar and not awful.client.floating.get(c) then
-			 awful.titlebar.remove(c)
-		end
-  end
 end
+
+function maketag( name, s )
+	tags[s][#tags[s] + 1] = tag({ name = name })
+	tags[s][#tags[s]].screen = s
+	setlayout()
+	tagtable[#tagtable + 1] = tags[s][#tags[s]]
+end
+
+client.add_signal("manage", retag)
+-- client.add_signal("property::name", retag)
+
+function cleanup(c)
+	local s = c.screen
+	for _, v in ipairs(c:tags()) do
+		if not v:clients() then
+			for i, t in ipairs(tags[s]) do
+				if t == v then
+					table.remove(tags[s], i)
+				end
+			end
+		end
+	end
+end
+
+client.add_signal("unmanage", cleanup)
+
+awful.tag.attached_add_signal(nil, "property::selected", function()
+	if awful.layout.get() == awful.layout.suit.floating then
+		awful.layout.set(layouts[awful.tag.selected().name][1])
+	end
+end)
