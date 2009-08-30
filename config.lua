@@ -131,7 +131,7 @@ config.prompts = {
 	ssh = function ()
 		obvious.popup_run_prompt.set_prompt_string(' ssh ')
 		obvious.popup_run_prompt.set_run_function(function (s)
-			awful.util.spawn(config.terminal .. ' -name ssh -e ssh ' .. s)
+			awful.util.spawn(config.terminal .. ' -e ssh ' .. s)
 		end)
 		obvious.popup_run_prompt.set_completion_function(function(command, cur_pos, ncomp, shell)
 			cmd, pos = awful.completion.shell( 'ssh ' .. command, cur_pos + 4, ncomp + 1, shell )
@@ -140,3 +140,4 @@ config.prompts = {
 		obvious.popup_run_prompt.run_prompt()
 	end,
 }
+
