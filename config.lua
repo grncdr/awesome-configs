@@ -8,7 +8,7 @@ config = {
 
 config.tags = {
 	{ -- Tag 1
-		name = 'code',
+		name = "code",
 		layouts = {
 			awful.layout.suit.tile.bottom,
 			awful.layout.suit.fair.horizontal,
@@ -18,20 +18,20 @@ config.tags = {
 		}
 	},
 	{ -- Tag 2
-		name = 'web',
+		name = "web",
 		layouts = {
 			awful.layout.suit.max,
 		}
 	},
 	{ -- Tag 3
-		name = 'bore',
+		name = "bore",
 		layouts = {
 			awful.layout.suit.max,
 			awful.layout.suit.magnifier,
 		}
 	},
 	{ -- Tag 4
-		name = 'sys',
+		name = "sys",
 		layouts = {
 			awful.layout.suit.tile.bottom,
 			awful.layout.suit.fair.horizontal,
@@ -41,7 +41,7 @@ config.tags = {
 		}
 	},
 	{ -- Tag 5
-		name = 'term',
+		name = "term",
 		layouts = {
 			awful.layout.suit.tile.bottom,
 			awful.layout.suit.fair.horizontal,
@@ -54,7 +54,7 @@ config.tags = {
 		}
 	},
 	{ -- Tag 6
-		name = 'ssh',
+		name = "ssh",
 		layouts = {
 			awful.layout.suit.tile.bottom,
 			awful.layout.suit.fair.horizontal,
@@ -62,7 +62,7 @@ config.tags = {
 			awful.layout.suit.fair,
 			awful.layout.suit.max,
 		}
-	}
+	},
 }
 
 -- Table of application class/instance names to match and do things with in hooks.manage
