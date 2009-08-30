@@ -1,5 +1,6 @@
 -- Standard awesome library
 require("awful")
+-- require("awful.rules")
 require("awful.autofocus")
 -- Theme handling library
 require("beautiful")
@@ -14,11 +15,11 @@ dofile(awful.util.getdir('config') .. '/config.lua')
 
 -- A couple of utility functions
 function nextlayout() 
-	awful.layout.inc(config.tags[awful.tag.selected().name].layouts, 1)
+	awful.layout.inc(config.layouts[awful.tag.selected().name], 1)
 end
 
 function prevlayout() 
-	awful.layout.inc(config.tags[awful.tag.selected().name].layouts, -1)
+	awful.layout.inc(config.layouts[awful.tag.selected().name], -1)
 end
 
 
@@ -27,19 +28,18 @@ beautiful.init(config.theme)
 
 -- {{{ Tags
 -- Define tags table.
--- require("shifty-config")
 tags = {}
-for s = 1, screen.count() do
-	-- Each screen has its own tag table.
-  tags[s] = {}
-	for i, t in ipairs(config.tags) do
-				tags[s][i] = tag({ name = t.name })
-        tags[s][i].screen = s
-        awful.tag.setproperty(tags[s][i], "layout", t.layouts[1])
-	end
-  -- Select the first tag.
-	tags[s][1].selected = true
-end
+-- for s = 1, screen.count() do
+-- 	-- Each screen has its own tag table.
+--   tags[s] = {}
+-- 	for i, t in ipairs(config.tags) do
+-- 				tags[s][i] = tag({ name = t.name })
+--         tags[s][i].screen = s
+--         awful.tag.setproperty(tags[s][i], "layout", t.layouts[1])
+-- 	end
+--   -- Select the first tag.
+-- 	tags[s][1].selected = true
+-- end
 -- }}}
 
 -- {{{ Wibox
@@ -294,6 +294,9 @@ require("dyno")
 client.add_signal("manage", dyno.manage)
 
 client.add_signal("property::name", dyno.property)
+client.add_signal("property::name", function(c)
+	naughty.notify { text = c.name }
+end)
 
 client.add_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
