@@ -104,7 +104,7 @@ mytaglist.buttons = awful.util.table.join(
 					awful.button({ }, 1, awful.tag.viewonly),
 					awful.button({ modkey }, 1, awful.client.movetotag),
 					awful.button({ }, 3, function (tag) tag.selected = not tag.selected end),
-					awful.button({ modkey }, 3, awful.client.toggletag),
+					awful.button({ modkey }, 3, awful.client.toggletag)
 					)
 mytasklist = {}
 mytasklist.buttons = awful.util.table.join(
