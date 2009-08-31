@@ -8,6 +8,7 @@ config = {
 
 config.layouts = {
 	default = {
+		awful.layout.suit.floating,
 		awful.layout.suit.tile.bottom,
 		awful.layout.suit.fair.horizontal,
 		awful.layout.suit.tile,
