@@ -19,8 +19,23 @@ module('dyno')
 -- This can be a tag name (string) or tag object or false for auto-generated tag names
 fallback = false
 
+-- Whether to automatically select newly created tags
+show_new_tags = true
+
+-- The strategy used for deciding which tags to display after mapping a new client
+-- 1 == select the new clients tags without deselecting anything
+-- 2 == select only the new clients tags
+-- 3 == select only the first of the new clients tags
+-- 4 == select only the last of the new clients tags
+-- default == do not alter the selected tags at all
+visibility_strategy = 3
+
+local function get_screen(obj)
+	return (obj and obj.screen) or mouse.screen or 1
+end
+
 function retag(c)
-	local s = c.screen
+	local s = get_screen(c)
 
 	local tags = tags[s]
 	local newtags = {}
@@ -30,7 +45,7 @@ function retag(c)
 		if r.properties.tagname and match(c, r.rule) then
 			newtags[#newtags + 1] = r.properties.tagname
 			if r.properties.switchtotag then
-				selected[#selected + 1] = r.properties.tagname
+				selected[r.properties.tagname] = true
 			end
 		end
 	end
@@ -48,6 +63,7 @@ function retag(c)
 		end
 	end
 
+	local visible = {}
 	for i, name in ipairs(newtags) do
 		for _, t in ipairs(tags) do
 			if t.name == name then
@@ -57,10 +73,37 @@ function retag(c)
 		end
 		if type(newtags[i]) == 'string' then
 			newtags[i] = maketag( name, s )
+			if not selected[name] and show_new_tags then
+				visible[#visible + 1] = newtags[i]
+			end
 		end
-		if selected[name] ~= nil then newtags[i].selected = true end
+		if selected[name] ~= nil then visible[#visible + 1] = newtags[i] end
 	end
 	c:tags(newtags)
+	set_visible(visible, s)
+end
+	
+function set_visible(vtags, s)
+	if visibility_strategy == 1 then
+		for _, t in ipairs(vtags) do
+			t.selected = true
+		end
+	elseif visibility_strategy == 2 then
+		for _, t in ipairs(screen[s]:tags()) do
+			local keep = false
+			for n, vt in ipairs(vtags) do
+				if t == vt then
+					keep = true
+					break
+				end
+			end
+			t.selected = keep
+		end
+	elseif visibility_strategy == 3 then
+		awful.tag.viewonly(vtags[1])
+	elseif visibility_strategy == 4 then
+		awful.tag.viewonly(vtags[#vtags])
+	end
 	if not awful.tag.selected() then tags[1].selected = true end
 end
 
@@ -76,6 +119,8 @@ function maketag( name, s )
 	else
 		awful.layout.set(layouts[1], t)
 	end
+	t.selected = true
+	return t
 end
 
 client.add_signal("manage", retag)
@@ -93,10 +138,9 @@ client.add_signal("unmanage", cleanup)
 --{{{ del : delete a tag. Taken directly from the shifty sources
 --@param tag : the tag to be deleted [current tag]
 function del(tag, idx)
-  local scr = (tag and tag.screen) or mouse.screen or 1
+  local scr = get_screen(tag)
   local tags = screen[scr]:tags()
-  local sel = awful.tag.selected(scr)
-  local t = tag or sel
+  local sel = awful.tag.selected(scr) local t = tag or sel
 
   -- return if tag not empty (except sticky)
   local clients = t:clients()
@@ -123,4 +167,3 @@ function del(tag, idx)
   -- if client.focus then client.focus:raise() end
 end
 --}}}
-

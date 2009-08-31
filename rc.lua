@@ -294,7 +294,7 @@ awful.rules.rules = {
 	{ rule = { class = "URxvt", name = "ssh" },
 		properties = { tagname = 'ssh' } },
 	{ rule = { class = "Shiretoko" }, 
-		properties = { tagname = 'web' } },
+		properties = { tagname = 'web', switchtotag = true  } },
 	{ rule = { class = "Evince" }, 
 		properties = { tagname = 'term' } },
 	{ rule = { class = "Gvim" }, 
