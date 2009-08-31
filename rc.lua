@@ -1,5 +1,6 @@
 -- Standard awesome library
 require("awful")
+require("awful.rules")
 require("awful.autofocus")
 -- Theme handling library
 require("beautiful")
@@ -13,32 +14,31 @@ modkey = "Mod4"
 dofile(awful.util.getdir('config') .. '/config.lua')
 
 -- A couple of utility functions
-function nextlayout() 
-	awful.layout.inc(config.tags[awful.tag.selected().name].layouts, 1)
+function layout_change(idx) 
+	if config.layouts[awful.tag.selected().name] then
+		awful.layout.inc(config.layouts[awful.tag.selected().name], idx)
+	else
+		awful.layout.inc(config.layouts.default, idx)
+	end
 end
-
-function prevlayout() 
-	awful.layout.inc(config.tags[awful.tag.selected().name].layouts, -1)
-end
-
 
 -- Actually load theme
 beautiful.init(config.theme)
 
+
 -- {{{ Tags
 -- Define tags table.
--- require("shifty-config")
 tags = {}
 for s = 1, screen.count() do
-	-- Each screen has its own tag table.
+ 	-- Each screen has its own tag table.
   tags[s] = {}
-	for i, t in ipairs(config.tags) do
-				tags[s][i] = tag({ name = t.name })
-        tags[s][i].screen = s
-        awful.tag.setproperty(tags[s][i], "layout", t.layouts[1])
-	end
-  -- Select the first tag.
-	tags[s][1].selected = true
+-- 	for i, t in ipairs(config.tags) do
+-- 				tags[s][i] = tag({ name = t.name })
+--         tags[s][i].screen = s
+--         awful.tag.setproperty(tags[s][i], "layout", t.layouts[1])
+-- 	end
+--   -- Select the first tag.
+-- 	tags[s][1].selected = true
 end
 -- }}}
 
@@ -136,8 +136,8 @@ for s = 1, screen.count() do
 	-- We need one layoutbox per screen.
 	mylayoutbox[s] = awful.widget.layoutbox(s)
 	mylayoutbox[s].buttons = awful.util.table.join(
-		awful.button({ }, 1, nextlayout),
-		awful.button({ }, 3, prevlayout)
+		awful.button({ }, 1, function() layout_change(1) end),
+		awful.button({ }, 3, function() layout_change(-1) end)
 	)
 	-- Create a taglist widget
 	mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
@@ -219,8 +219,8 @@ globalkeys = awful.util.table.join(
 	awful.key({ modkey, "Shift"   }, "l",	 function () awful.tag.incnmaster(-1)	  end),
 	awful.key({ modkey, "Control" }, "h",	 function () awful.tag.incncol( 1)		 end),
 	awful.key({ modkey, "Control" }, "l",	 function () awful.tag.incncol(-1)		 end),
-	awful.key({ modkey,		   }, "BackSpace", nextlayout),
-	awful.key({ modkey, "Shift"   }, "BackSpace", prevlayout),
+	awful.key({ modkey,		   }, "BackSpace", function () layout_change(1) end),
+	awful.key({ modkey, "Shift"   }, "BackSpace", function () layout_change(-1) end),
 
 	-- Prompts
   awful.key({ modkey }, "Return", config.prompts.default),
@@ -230,24 +230,10 @@ globalkeys = awful.util.table.join(
 	awful.key({ modkey }, "s", config.prompts.ssh)
 )
 
--- Per client keybindings
-clientkeys = awful.util.table.join(
-	awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
- 	awful.key({ modkey,           }, "q",      function (c) c:kill()                         end),
- 	awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ),
--- 	awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
- 	awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
-	awful.key({ modkey, "Shift"   }, "r",      function (c) c:redraw() end)
-)
 
 -- tag key shortcuts
 -- Compute the maximum number of digit we need, limited to 9
-keynumber = 0
-for s = 1, screen.count() do
-   keynumber = math.min(9, math.max(#tags[s], keynumber));
-end
-
-for i = 1, keynumber do
+for i = 1, 9 do
     globalkeys = awful.util.table.join(globalkeys,
         awful.key({ modkey }, i,
                   function ()
@@ -286,120 +272,70 @@ clientbuttons = awful.util.table.join(
     awful.button({ modkey }, 1, awful.mouse.client.move),
     awful.button({ modkey }, 3, awful.mouse.client.resize))
 
+-- Per client keybindings
+clientkeys = awful.util.table.join(
+	awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
+ 	awful.key({ modkey,           }, "q",      function (c) c:kill()                         end),
+ 	awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ),
+-- 	awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
+ 	awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
+	awful.key({ modkey, "Shift"   }, "r",      function (c) c:redraw() end)
+)
 
-function retag_client(c)
-	local instance = c.instance and c.instance:lower() or ""
-	local class = c.class and c.class:lower() or ""
-	local name = c.name and c.name:lower() or ""
-
-	local settings = {}
-
-	for k, v in pairs(config.apps) do
-		for j, m in pairs(v.match) do
-			if name:match(m) or instance:match(m) or class:match(m) then
-				if v.tags then
-					if not settings.tags then settings.tags = v.tags break end
-					--If we have tags and this is only a fallback tag, skip it
-					if v.fallback then break end 
-					settings.tags = awful.util.table.join(settings.tags, v.tags)
-				end
-				if v.float ~= nil then
-					settings.float = v.float
-				end
-			end
-		end
-	end
-
-	if not settings.tags then
-		-- Here we will handle clients that don't have a pre-defined tag.
-		-- Possibility 1 > client is assigned a catch-all tag
-		-- Possibility 2 > client is assigned a dynamic tag based on class/instance
-		naughty.notify({text = 'no tags defined for ' .. tostring(c), screen = mouse.screen})
-	end
-	if settings == {} then return end
-
-	if settings.slave then
-		awful.client.setslave(c)
-	end
-	if settings.size_hints_honor ~= nil then
-		c.size_hints_honor = settings.size_hints_honor
-	end
-	-- Is/are tag(s) defined for this client?
-	if settings.tags then
-		newtags = {}
-		if type(settings.tags) ~= 'table' then
-			settings.tags = { settings.tags }
-		end
-		c:tags({}) -- empty the taglist for the client
-		local switch = true
-		for i, t in pairs(settings.tags) do
-			newtags[#newtags + 1] = tags[c.screen][t]
-			for k, v in pairs(awful.tag.selectedlist()) do 
-				if v == tags[c.screen][t] then switch = false break end
-			end
-		end
-		c:tags(newtags)
-		-- check if we are already viewing the appropiate tag and switch to it if not
-		if switch then awful.tag.viewmore(newtags, c.screen) end
-	end
-
-	if settings.float ~= nil then
-		awful.client.floating.set(c, settings.float)
-		c:raise()
-	end
-end
+awful.rules.rules = {
+	{ rule = { },
+		properties = { border_width = beautiful.border_width,
+			border_color = beautiful.border_normal,
+			focus = true,
+			keys = clientkeys,
+			buttons = clientbuttons } },
+	{ rule = { class = "URxvt" }, 
+		properties = { tagname = 'term', switchtotag = true } },
+	{ rule = { class = "URxvt", name = "ssh" },
+		properties = { tagname = 'ssh' } },
+	{ rule = { class = "Shiretoko" }, 
+		properties = { tagname = 'web', switchtotag = true  } },
+	{ rule = { class = "Evince" }, 
+		properties = { tagname = 'term' } },
+	{ rule = { class = "Gvim" }, 
+		properties = { tagname = 'code' } },
+	{ rule = { name = "VIM" }, 
+		properties = { tagname = 'code' } },
+	{ rule = { class = "Qalculate" }, 
+		properties = { float = true } },
+	{ rule = { name = "wicd%-curses"}, 
+		properties = { tagname = 'sys' } },
+	{ rule = { name = "alsamixer" }, 
+		properties = { tagname = 'sys' } }
+}
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
 client.add_signal("manage", function (c, startup)
-	if not startup and awful.client.focus.filter(c) then
-		c.screen = mouse.screen
-	end	
-		c.maximized_horizontal = false
-		c.maximized_vertical = false
-	c.buttons = awful.util.table.join(
-		awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
-		awful.button({ modkey }, 1, awful.mouse.client.move),
-		awful.button({ modkey }, 3, awful.mouse.client.resize)
-	)
-	c.border_width = beautiful.border_width
-	c.border_color = beautiful.border_normal
+    -- If we are not managing this application at startup,
+    -- move it to the screen where the mouse is.
+    -- We only do it for filtered windows (i.e. no dock, etc).
+    if not startup and awful.client.focus.filter(c) then
+        c.screen = mouse.screen
+    end
 
-	-- Set key bindings
-	c:keys(clientkeys)
-	c:add_signal("mouse::enter", function(c)
-		if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
-		and awful.client.focus.filter(c) then
-			client.focus = c
-		end
-	end)
+    -- Add a titlebar
+    -- awful.titlebar.add(c, { modkey = modkey })
 
-	retag_client(c)
-end)
+    -- Enable sloppy focus
+    c:add_signal("mouse::enter", function(c)
+        if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
+            and awful.client.focus.filter(c) then
+            client.focus = c
+        end
+    end)
 
-client.add_signal("property::name", function(c, prop)
-	local instance = c.instance and c.instance:lower() or ""
-	local class = c.class and c.class:lower() or ""
-	local name = c.name and c.name:lower() or ""
-	if prop == 'name' and ( config.terminal:match(class) or config.terminal:match(instance) ) and name ~= config.lastname then
-		config.lastname = name
-		retag_client( c )
-		client.focus = c
---		awful.hooks.user.call("focus", c)
-	end
-
-	-- Titlebar management
-  if c.fullscreen then
-		awful.titlebar.remove(c)
-  elseif not c.fullscreen then
-		if c.titlebar == nil and awful.client.floating.get(c) then
-			 awful.titlebar.add(c, { modkey = modkey })
-		elseif c.titlebar and not awful.client.floating.get(c) then
-			 awful.titlebar.remove(c)
-		end
-  end
+    -- Set the windows at the slave,
+    -- i.e. put it at the end of others instead of setting it master.
+    -- awful.client.setslave(c)
 end)
 
 client.add_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+require("dyno")

@@ -6,75 +6,55 @@ config = {
 	modkey = 'Mod4',
 }
 
-config.tags = {
-	{ -- Tag 1
-		name = "code",
-		layouts = {
-			awful.layout.suit.tile.bottom,
-			awful.layout.suit.fair.horizontal,
-			awful.layout.suit.tile,
-			awful.layout.suit.fair,
-			awful.layout.suit.max,
-		}
+config.layouts = {
+	default = {
+		awful.layout.suit.floating,
+		awful.layout.suit.tile.bottom,
+		awful.layout.suit.fair.horizontal,
+		awful.layout.suit.tile,
+		awful.layout.suit.fair,
+		awful.layout.suit.max,
 	},
-	{ -- Tag 2
-		name = "web",
-		layouts = {
-			awful.layout.suit.max,
-		}
+	code = {
+		awful.layout.suit.tile.bottom,
+		awful.layout.suit.fair.horizontal,
+		awful.layout.suit.tile,
+		awful.layout.suit.fair,
 	},
-	{ -- Tag 3
-		name = "bore",
-		layouts = {
-			awful.layout.suit.max,
-			awful.layout.suit.magnifier,
-		}
+	web = { -- Tag 2
+		awful.layout.suit.max,
 	},
-	{ -- Tag 4
-		name = "sys",
-		layouts = {
-			awful.layout.suit.tile.bottom,
-			awful.layout.suit.fair.horizontal,
-			awful.layout.suit.tile,
-			awful.layout.suit.fair,
-			awful.layout.suit.max,
-		}
+	bore = { -- Tag 3
+		awful.layout.suit.max,
+		awful.layout.suit.magnifier,
 	},
-	{ -- Tag 5
-		name = "term",
-		layouts = {
-			awful.layout.suit.tile.bottom,
-			awful.layout.suit.fair.horizontal,
-			awful.layout.suit.tile.top,
-			awful.layout.suit.fair,
-			awful.layout.suit.tile,
-			awful.layout.suit.tile.left,
-			awful.layout.suit.max,
-			awful.layout.suit.spiral.dwindle,
-		}
+	sys = {
+		awful.layout.suit.tile.bottom,
+		awful.layout.suit.fair.horizontal,
+		awful.layout.suit.tile,
+		awful.layout.suit.fair,
+		awful.layout.suit.max,
 	},
-	{ -- Tag 6
-		name = "ssh",
-		layouts = {
-			awful.layout.suit.tile.bottom,
-			awful.layout.suit.fair.horizontal,
-			awful.layout.suit.tile,
-			awful.layout.suit.fair,
-			awful.layout.suit.max,
-		}
+	term = { -- Tag 5
+		awful.layout.suit.tile.bottom,
+		awful.layout.suit.fair.horizontal,
+		awful.layout.suit.tile.top,
+		awful.layout.suit.fair,
+		awful.layout.suit.tile,
+		awful.layout.suit.tile.left,
+		awful.layout.suit.max,
+		awful.layout.suit.spiral.dwindle,
+	},
+	ssh = { -- Tag 6
+		awful.layout.suit.tile.bottom,
+		awful.layout.suit.fair.horizontal,
+		awful.layout.suit.tile,
+		awful.layout.suit.fair,
+		awful.layout.suit.max,
 	},
 }
 
 -- Table of application class/instance names to match and do things with in hooks.manage
-config.apps = {
-	{ match = { "ssh", "baby%-box" }, tags = { 6 } },
-	{ match = { "firefox", "shiretoko" }, tags = { 2 } },
-	{ match = { "evince" }, tags = { 3 } },
-	{ match = { "vim" }, tags = { 1 } },
-	{ match = { "qalculate" }, float = true },
-	{ match = { "wicd%-curses", "alsamixer", "conky" }, tags = { 4 } },
-	{ match = { "urxvt", "xterm" }, tags = { 5 }, fallback = true },
-}
 
 -- Widget Settings --
 obvious.clock.set_editor(config.editor)
@@ -131,7 +111,7 @@ config.prompts = {
 	ssh = function ()
 		obvious.popup_run_prompt.set_prompt_string(' ssh ')
 		obvious.popup_run_prompt.set_run_function(function (s)
-			awful.util.spawn(config.terminal .. ' -name ssh -e ssh ' .. s)
+			awful.util.spawn(config.terminal .. ' -e ssh ' .. s)
 		end)
 		obvious.popup_run_prompt.set_completion_function(function(command, cur_pos, ncomp, shell)
 			cmd, pos = awful.completion.shell( 'ssh ' .. command, cur_pos + 4, ncomp + 1, shell )
@@ -140,3 +120,4 @@ config.prompts = {
 		obvious.popup_run_prompt.run_prompt()
 	end,
 }
+
