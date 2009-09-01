@@ -7,13 +7,13 @@ config = {
 }
 
 config.layouts = {
-	default = {
-		awful.layout.suit.floating,
-		awful.layout.suit.tile.bottom,
-		awful.layout.suit.fair.horizontal,
+	default = { -- Used on auto-generated tags and tags without their own layout table
 		awful.layout.suit.tile,
 		awful.layout.suit.fair,
+		awful.layout.suit.tile.bottom,
+		awful.layout.suit.fair.horizontal,
 		awful.layout.suit.max,
+		awful.layout.suit.floating,
 	},
 	code = {
 		awful.layout.suit.tile.bottom,
