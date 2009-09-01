@@ -237,9 +237,9 @@ for i = 1, 9 do
     globalkeys = awful.util.table.join(globalkeys,
         awful.key({ modkey }, i,
                   function ()
-                        local screen = mouse.screen
-                        if tags[screen][i] then
-                            awful.tag.viewonly(tags[screen][i])
+                        local s = mouse.screen
+                        if screen[s]:tags()[i] then
+                            awful.tag.viewonly(screen[s]:tags()[i])
                         end
                   end),
         awful.key({ modkey, "Control" }, i,
@@ -284,7 +284,8 @@ clientkeys = awful.util.table.join(
 
 awful.rules.rules = {
 	{ rule = { },
-		properties = { border_width = beautiful.border_width,
+		properties = { 
+			border_width = beautiful.border_width,
 			border_color = beautiful.border_normal,
 			focus = true,
 			keys = clientkeys,
@@ -295,14 +296,16 @@ awful.rules.rules = {
 		properties = { tagname = 'ssh' } },
 	{ rule = { class = "Shiretoko" }, 
 		properties = { tagname = 'web', switchtotag = true  } },
+	{ rule = { class = "Firefox" }, 
+		properties = { tagname = 'web', switchtotag = true  } },
 	{ rule = { class = "Evince" }, 
-		properties = { tagname = 'term' } },
+		properties = { tagname = 'pdf' } },
 	{ rule = { class = "Gvim" }, 
 		properties = { tagname = 'code' } },
 	{ rule = { name = "VIM" }, 
 		properties = { tagname = 'code' } },
 	{ rule = { class = "Qalculate" }, 
-		properties = { float = true } },
+		properties = { float = true, tagname = 'any' } },
 	{ rule = { name = "wicd%-curses"}, 
 		properties = { tagname = 'sys' } },
 	{ rule = { name = "alsamixer" }, 
@@ -320,7 +323,9 @@ client.add_signal("manage", function (c, startup)
     end
 
     -- Add a titlebar
-    -- awful.titlebar.add(c, { modkey = modkey })
+		if awful.client.floating.get(c) then
+			awful.titlebar.add(c, { modkey = modkey })
+		end
 
     -- Enable sloppy focus
     c:add_signal("mouse::enter", function(c)

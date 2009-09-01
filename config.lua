@@ -101,7 +101,7 @@ config.prompts = {
 	lua = function ()
 		obvious.popup_run_prompt.set_prompt_string(' lua> ')
 		obvious.popup_run_prompt.set_run_function(function (s)
-			if not s:match('return') then s = 'return ' .. s end
+			if not (s:match('return') or s:match('=')) then s = 'return ' .. s end
 			local rv = awful.util.eval(s)
 			if rv then naughty.notify({ text = tostring(rv), screen = mouse.screen }) end
 		end)
