@@ -1,5 +1,5 @@
 config = {
-	editor = 'gvim',
+	editor = 'urxvtc -e vim',
 	terminal = 'urxvtc',
 	theme = awful.util.getdir('config') .. '/themes/current/theme.lua',
 	browser = 'firefox',
