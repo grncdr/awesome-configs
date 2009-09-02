@@ -313,6 +313,8 @@ awful.rules.rules = {
 	-- Floating apps
 	{ rule = { class = "Qalculate" }, 
 		properties = { floating = true, tagname = 'any' } },
+	{ rule = { class = "Geany" }, 
+		properties = { floating = true } },
 	{ rule = { class = "Cellwriter" }, 
 		properties = { floating = true, sticky = true, tagname = 'any' } },
 }
