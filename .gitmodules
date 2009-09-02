@@ -1,3 +1,6 @@
 [submodule "dyno"]
 	path = dyno
 	url = git://github.com/grncdr/dyno.git
+[submodule "obvious"]
+	path = obvious
+	url = git://git.mercenariesguild.net/obvious.git

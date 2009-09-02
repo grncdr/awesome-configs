@@ -32,13 +32,6 @@ tags = {}
 for s = 1, screen.count() do
  	-- Each screen has its own tag table.
   tags[s] = {}
--- 	for i, t in ipairs(config.tags) do
--- 				tags[s][i] = tag({ name = t.name })
---         tags[s][i].screen = s
---         awful.tag.setproperty(tags[s][i], "layout", t.layouts[1])
--- 	end
---   -- Select the first tag.
--- 	tags[s][1].selected = true
 end
 -- }}}
 
