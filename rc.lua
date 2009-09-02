@@ -292,7 +292,7 @@ awful.rules.rules = {
 			buttons = clientbuttons } },
 	{ rule = { class = "URxvt" }, 
 		properties = { tagname = 'term', switchtotag = true } },
-	{ rule = { class = "URxvt", name = "ssh" },
+	{ rule = { class = "URxvt", name = "@" },
 		properties = { tagname = 'ssh' } },
 	{ rule = { class = "Shiretoko" }, 
 		properties = { tagname = 'web', switchtotag = true  } },
@@ -304,12 +304,17 @@ awful.rules.rules = {
 		properties = { tagname = 'code' } },
 	{ rule = { name = "VIM" }, 
 		properties = { tagname = 'code' } },
-	{ rule = { class = "Qalculate" }, 
-		properties = { float = true, tagname = 'any' } },
 	{ rule = { name = "wicd%-curses"}, 
 		properties = { tagname = 'sys' } },
 	{ rule = { name = "alsamixer" }, 
-		properties = { tagname = 'sys' } }
+		properties = { tagname = 'sys' } },
+	{ rule = { name = "Save As" }, 
+		properties = { tagname = 'any' } },
+	-- Floating apps
+	{ rule = { class = "Qalculate" }, 
+		properties = { floating = true, tagname = 'any' } },
+	{ rule = { class = "Cellwriter" }, 
+		properties = { floating = true, sticky = true, tagname = 'any' } },
 }
 
 -- {{{ Signals
