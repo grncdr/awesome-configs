@@ -121,3 +121,41 @@ config.prompts = {
 	end,
 }
 
+awful.rules.rules = {
+	{ rule = { },
+		properties = { 
+			border_width = beautiful.border_width,
+			border_color = beautiful.border_normal,
+			focus = true,
+			keys = clientkeys,
+			buttons = clientbuttons } },
+	-- Terminal apps
+	{ rule = { class = "URxvt", name = "@" },
+		properties = { tagname = 'ssh' } },
+	{ rule = { name = "VIM" }, 
+		properties = { tagname = 'code' } },
+	{ rule = { name = "wicd%-curses"}, 
+		properties = { tagname = 'sys' } },
+	{ rule = { name = "alsamixer" }, 
+		properties = { tagname = 'sys' } },
+	{ rule = { class = "URxvt" }, 
+		properties = { tagname = 'term', switchtotag = true } },
+
+	-- GUI apps
+	{ rule = { class = "Shiretoko" }, 
+		properties = { tagname = 'web', switchtotag = true  } },
+	{ rule = { class = "Firefox" }, 
+		properties = { tagname = 'web', switchtotag = true  } },
+	{ rule = { class = "Evince" }, 
+		properties = { tagname = 'pdf' } },
+	{ rule = { name = "Save As" }, 
+		properties = { tagname = 'any' } },
+	
+	-- Floating apps
+	{ rule = { class = "Qalculate" }, 
+		properties = { floating = true, tagname = 'any' } },
+	{ rule = { class = "Geany" }, 
+		properties = { floating = true } },
+	{ rule = { class = "Cellwriter" }, 
+		properties = { floating = true, sticky = true, tagname = 'any' } },
+}
