@@ -47,9 +47,28 @@ module("awful.rules")
 --   properties = { tag = mytagobject, switchtotag = true } }
 -- </code>
 -- </p>
--- <p>Note that all "rule" entries need to match. If any of the entry does not
--- match, the rule won't be applied.</p>
--- <p>If a client matches multiple rules, their applied in the order they are
+-- <p>Rules can also specify either the field or value as a table with a list of
+-- entries:
+-- <br/>
+-- <code>
+-- { rule = { {'class','name','instance'} = 'Firefox' },
+--   properties = { tag = tags[1][2] } }
+-- </code>
+-- <br/>or:
+-- <code>
+-- { rule = { class = {'urxvt', 'xterm', 'terminal' }, name = 'ssh' },
+--   properties = { tag = tags[2][2], switchtotag = true } }
+-- </code>
+-- <br/>or even:
+-- <code>
+-- { rule = { {'class', 'name', 'instance'} = {'xterm', 'terminal', 'urxvt'} },
+--   properties = { tag = tags[2][2], switchtotag = true } }
+-- </code>
+-- <p>Note that all first-level "rule" entries (such as class = 'class') need to 
+-- match. If any of the entry does not match, the rule won't be applied.
+-- However, when using tables as keys or values, only <i>one</i> of the possible
+-- combinations of rules needs to match for the rule to be applied. </p>
+-- <p>If a client matches multiple rules, they're applied in the order they are
 -- put in this global rules table. If the value of a rule is a string, then the
 -- match function is used to determine if the client matches the rule.</p>
 --
@@ -65,15 +84,15 @@ function match(c, rule)
     for field, value in pairs(rule) do
         if type(field) == "table" then
             for _, f in ipairs(field) do
-                if not match(c, {[f] = value}) then
-                    return false
+                if match(c, {[f] = value}) then
+                    return true
                 end
             end
         end
         if type(value) == "table" do
             for _, v in ipairs(value) do
-                if not match(c, {[field] = v}) then
-                    return false
+                if match(c, {[field] = v}) then
+                    return true
                 end
             end
         end
