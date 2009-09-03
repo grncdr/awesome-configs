@@ -104,6 +104,8 @@ function match(c, rule)
             elseif c[field] ~= value then
                 return false
             end
+        else
+            return false
         end
     end
     return true
