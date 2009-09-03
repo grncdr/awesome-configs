@@ -89,7 +89,7 @@ function match(c, rule)
                 end
             end
         end
-        if type(value) == "table" do
+        if type(value) == "table" then
             for _, v in ipairs(value) do
                 if match(c, {[field] = v}) then
                     return true
