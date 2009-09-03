@@ -88,15 +88,13 @@ function match(c, rule)
                     return true
                 end
             end
-        end
-        if type(value) == "table" then
+        elseif type(value) == "table" then
             for _, v in ipairs(value) do
                 if match(c, {[field] = v}) then
                     return true
                 end
             end
-        end
-        if c[field] then
+        elseif c[field] then
             if type(c[field]) == "string" then
                 if not c[field]:match(value) and c[field] ~= value then
                     return false

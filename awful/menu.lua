@@ -2,7 +2,7 @@
 -- @author Damien Leone &lt;damien.leone@gmail.com&gt;
 -- @author Julien Danjou &lt;julien@danjou.info&gt;
 -- @copyright 2008 Damien Leone, Julien Danjou
--- @release v3.3-436-g06f4a30
+-- @release @AWESOME_VERSION@
 ---------------------------------------------------------------------------
 
 -- Grab environment we need
@@ -227,7 +227,6 @@ local function add_item(data, num, item_info)
     end
 
     -- Add widgets to the wibox
-    local height = label:extents().height + 2
     if iconbox then
         item.widgets = {
             iconbox,
@@ -243,7 +242,7 @@ local function add_item(data, num, item_info)
         }
     end
 
-    item.height = height
+    item.height = label:extents().height + 2
     item.ontop = true
 
     return { wibox = item, cmd = item_info[2] }
@@ -369,7 +368,7 @@ function new(menu, parent, num)
     data.h = parent and parent.h or data.theme.menu_height
     if type(data.h) ~= 'number' then data.h = tonumber(data.h) end
     data.w = parent and parent.w or data.theme.menu_width
-    if type(data.w) ~= 'number' then data.w = tonumber(data.h) end
+    if type(data.w) ~= 'number' then data.w = tonumber(data.w) end
 
     -- Create items
     for k, v in pairs(menu.items) do
