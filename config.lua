@@ -129,28 +129,33 @@ awful.rules.rules = {
 			focus = true,
 			keys = clientkeys,
 			buttons = clientbuttons } },
-	
+	-- Terminal apps
 	{ rule = { class = "URxvt", name = "@" },
 		properties = { tagname = 'ssh' } },
 	{ rule = { name = "VIM" }, 
 		properties = { tagname = 'code' } },
+	{ rule = { name = "wicd%-curses"}, 
+		properties = { tagname = 'sys' } },
+	{ rule = { name = "alsamixer" }, 
+		properties = { tagname = 'sys' } },
 	{ rule = { class = "URxvt" }, 
 		properties = { tagname = 'term', switchtotag = true } },
 
-	-- Sys monitor/utils
-	{ rule = { class = "URxvt", name = { "wicd%-curses", "alsamixer" } }, 
-		properties = { tagname = 'sys' } },
 	-- GUI apps
-	{ rule = { class = {"Shiretoko", "Firefox"} }, 
+	{ rule = { class = "Shiretoko" }, 
+		properties = { tagname = 'web', switchtotag = true  } },
+	{ rule = { class = "Firefox" }, 
 		properties = { tagname = 'web', switchtotag = true  } },
 	{ rule = { class = "Evince" }, 
 		properties = { tagname = 'pdf' } },
-	{ rule = { name = "Save" }, 
+	{ rule = { name = "Save As" }, 
 		properties = { tagname = 'any' } },
 	
 	-- Floating apps
-	{ rule = { class = {"Qalculate", "Cellwriter"} },
+	{ rule = { class = "Qalculate" }, 
 		properties = { floating = true, tagname = 'any' } },
+	{ rule = { class = "Geany" }, 
+		properties = { floating = true } },
 	{ rule = { class = "Cellwriter" }, 
-		properties = { sticky = true } },
+		properties = { floating = true, sticky = true, tagname = 'any' } },
 }
