@@ -132,6 +132,8 @@ awful.rules.rules = {
 	-- Terminal apps
 	{ rule = { class = "URxvt", name = "@" },
 		properties = { tagname = 'ssh' } },
+	{ rule = { class = "URxvt", name = "MOC" },
+		properties = { tagname = 'media' } },
 	{ rule = { name = "VIM" }, 
 		properties = { tagname = 'code' } },
 	{ rule = { name = "wicd%-curses"}, 
