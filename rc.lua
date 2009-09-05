@@ -41,6 +41,8 @@ myawesomemenu = {
 	 { "manual", config.terminal .. " -e man awesome" },
 	 { "edit rc", config.editor .. " " .. awful.util.getdir("config") .. "/rc.lua" },
 	 { "edit theme", config.editor .. " " .. awful.util.getdir("config") .. "/themes/current/theme.lua" },
+	 { "Xephyr", "Xephyr -ac -br -noreset -screen 1280x780 :1" },
+	 { "test config", config.terminal .. "-e DISPLAY=:1.0 awesome" },
 	 { "restart", awesome.restart },
 	 { "terminal", config.terminal },
 	 { "quit", awesome.quit }
@@ -286,6 +288,7 @@ client.add_signal("manage", function (c, startup)
 		if awful.client.floating.get(c) then
 			awful.titlebar.add(c, { modkey = config.modkey })
 		end
+
 
 		-- Enable sloppy focus
 		c:add_signal("mouse::enter", function(c)
