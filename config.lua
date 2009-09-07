@@ -1,6 +1,6 @@
 config = {
-	editor = 'urxvtc -e vim',
-	terminal = 'urxvtc',
+	editor = 'terminal -e vim',
+	terminal = 'terminal',
 	theme = awful.util.getdir('config') .. '/themes/current/theme.lua',
 	browser = 'firefox',
 	modkey = 'Mod4',
@@ -130,9 +130,9 @@ awful.rules.rules = {
 			keys = clientkeys,
 			buttons = clientbuttons } },
 	-- Terminal apps
-	{ rule = { class = "URxvt", name = "@" },
+	{ rule = { class = "Terminal", name = "@" },
 		properties = { tagname = 'ssh' } },
-	{ rule = { class = "URxvt", name = "MOC" },
+	{ rule = { class = "Terminal", name = "MOC" },
 		properties = { tagname = 'media' } },
 	{ rule = { name = "VIM" }, 
 		properties = { tagname = 'code' } },
@@ -140,7 +140,7 @@ awful.rules.rules = {
 		properties = { tagname = 'sys' } },
 	{ rule = { name = "alsamixer" }, 
 		properties = { tagname = 'sys' } },
-	{ rule = { class = "URxvt" }, 
+	{ rule = { class = "Terminal" }, 
 		properties = { tagname = 'term', switchtotag = true } },
 
 	-- GUI apps
