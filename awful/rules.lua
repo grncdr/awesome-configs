@@ -83,13 +83,13 @@ rules = {}
 function match(c, rule)
     for field, value in pairs(rule) do
         if type(field) == "table" then
-            for _, f in pairs(field) do
+            for _, f in ipairs(field) do
                 if match(c, {[f] = value}) then
                     return true
                 end
             end
         elseif type(value) == "table" then
-            for _, v in pairs(value) do
+            for _, v in ipairs(value) do
                 if match(c, {[field] = v}) then
                     return true
                 end

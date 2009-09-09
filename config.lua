@@ -1,6 +1,6 @@
 config = {
-	editor = 'terminal -e vim',
-	terminal = 'terminal',
+	editor = 'urxvt -e vim',
+	terminal = 'urxvt',
 	theme = awful.util.getdir('config') .. '/themes/current/theme.lua',
 	browser = 'firefox',
 	modkey = 'Mod4',
@@ -22,6 +22,9 @@ config.layouts = {
 		awful.layout.suit.fair,
 	},
 	web = { -- Tag 2
+		awful.layout.suit.max,
+	},
+	pdf = { -- Tag 2
 		awful.layout.suit.max,
 	},
 	bore = { -- Tag 3
@@ -121,6 +124,22 @@ config.prompts = {
 	end,
 }
 
+clientbuttons = awful.util.table.join(
+		awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
+		awful.button({ config.modkey }, 1, awful.mouse.client.move),
+		awful.button({ config.modkey }, 3, awful.mouse.client.resize))
+
+-- Per client keybindings
+clientkeys = awful.util.table.join(
+	awful.key({ config.modkey,					 }, "f",			function (c) c.fullscreen = not c.fullscreen	end),
+	awful.key({ config.modkey,					 }, "q",			function (c) c:kill()												 end),
+	awful.key({ config.modkey, "Control" }, "space",	awful.client.floating.toggle										 ),
+--	awful.key({ config.modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
+	awful.key({ config.modkey,					 }, "o",			awful.client.movetoscreen												),
+	awful.key({ config.modkey, "Shift"	 }, "r",			function (c) c:redraw() end)
+)
+
+-- {{{ Awful / Dyno rules
 awful.rules.rules = {
 	{ rule = { },
 		properties = { 
@@ -129,18 +148,24 @@ awful.rules.rules = {
 			focus = true,
 			keys = clientkeys,
 			buttons = clientbuttons } },
-	-- Terminal apps
-	{ rule = { class = "Terminal", name = "@" },
+	-- URxvt apps
+	{ rule = { class = "URxvt", name = "@" },
 		properties = { tagname = 'ssh' } },
-	{ rule = { class = "Terminal", name = "MOC" },
+	{ rule = { class = "URxvt", name = "MOC" },
 		properties = { tagname = 'media' } },
+	{ rule = { class = "URxvt", name = "WeeChat" },
+		properties = { tagname = 'chat' } },
 	{ rule = { name = "VIM" }, 
+		properties = { tagname = 'code' } },
+	{ rule = { class = "URxvt", name = "vim" }, 
 		properties = { tagname = 'code' } },
 	{ rule = { name = "wicd%-curses"}, 
 		properties = { tagname = 'sys' } },
+	{ rule = { name = "yaourt"}, 
+		properties = { tagname = 'sys' } },
 	{ rule = { name = "alsamixer" }, 
 		properties = { tagname = 'sys' } },
-	{ rule = { class = "Terminal" }, 
+	{ rule = { class = "URxvt" }, 
 		properties = { tagname = 'term', switchtotag = true } },
 
 	-- GUI apps
@@ -156,8 +181,7 @@ awful.rules.rules = {
 	-- Floating apps
 	{ rule = { class = "Qalculate" }, 
 		properties = { floating = true, tagname = 'any' } },
-	{ rule = { class = "Geany" }, 
-		properties = { floating = true } },
 	{ rule = { class = "Cellwriter" }, 
 		properties = { floating = true, sticky = true, tagname = 'any' } },
 }
+-- }}}

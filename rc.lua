@@ -185,8 +185,8 @@ globalkeys = awful.util.table.join(
 	awful.key({ config.modkey,			 }, "w", function () mymainmenu:show(true)		end),
 
 		-- Quicklaunch apps
-	awful.key({ config.modkey,			 }, "n", function () awful.util.spawn(config.terminal .. " -e wicd-curses") end ),
-	awful.key({ config.modkey,			 }, "m", function () awful.util.spawn(config.terminal .. " -e alsamixer") end ),
+	awful.key({ config.modkey,			 }, "n", function () awful.util.spawn(config.terminal .. " -name wicd-curses -e wicd-curses") end ),
+	awful.key({ config.modkey,			 }, "m", function () awful.util.spawn(config.terminal .. " -name alsamixer -e alsamixer") end ),
 
 	-- Layout manipulation
 	awful.key({ config.modkey, "Shift"	 }, "j", function () awful.client.swap.byidx(	1) end),
@@ -258,21 +258,6 @@ end
 -- Set keys
 root.keys(globalkeys)
 -- }}}
-
-clientbuttons = awful.util.table.join(
-		awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
-		awful.button({ config.modkey }, 1, awful.mouse.client.move),
-		awful.button({ config.modkey }, 3, awful.mouse.client.resize))
-
--- Per client keybindings
-clientkeys = awful.util.table.join(
-	awful.key({ config.modkey,					 }, "f",			function (c) c.fullscreen = not c.fullscreen	end),
-	awful.key({ config.modkey,					 }, "q",			function (c) c:kill()												 end),
-	awful.key({ config.modkey, "Control" }, "space",	awful.client.floating.toggle										 ),
---	awful.key({ config.modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
-	awful.key({ config.modkey,					 }, "o",			awful.client.movetoscreen												),
-	awful.key({ config.modkey, "Shift"	 }, "r",			function (c) c:redraw() end)
-)
 
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
