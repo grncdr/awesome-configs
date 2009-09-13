@@ -18,8 +18,7 @@ config.layouts = {
 	code = {
 		awful.layout.suit.tile.bottom,
 		awful.layout.suit.fair.horizontal,
-		awful.layout.suit.tile,
-		awful.layout.suit.fair,
+		awful.layout.suit.max,
 	},
 	web = { -- Tag 2
 		awful.layout.suit.max,
@@ -166,7 +165,7 @@ awful.rules.rules = {
 	{ rule = { name = "alsamixer" }, 
 		properties = { tagname = 'sys' } },
 	{ rule = { class = "URxvt" }, 
-		properties = { tagname = 'term', switchtotag = true } },
+		properties = { tagname = 'term' } },
 
 	-- GUI apps
 	{ rule = { class = "Shiretoko" }, 
